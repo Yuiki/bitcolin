@@ -1,3 +1,4 @@
+import org.bouncycastle.crypto.digests.RIPEMD160Digest
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import java.security.MessageDigest
 import java.security.Security
@@ -20,7 +21,7 @@ class Hash {
             return mac.doFinal(data)
         }
 
-        fun applySHA256(data: ByteArray, round: Int): ByteArray {
+        fun applySHA256(data: ByteArray, round: Int = 1): ByteArray {
             val md = MessageDigest.getInstance(SHA256)
             var digested = data
             for (i in 0 until round) {
@@ -28,6 +29,16 @@ class Hash {
                 digested = md.digest()
             }
             return digested
+        }
+
+        fun applyHash160(data: ByteArray): ByteArray {
+            val result = ByteArray(20)
+            val applied = applySHA256(data)
+            RIPEMD160Digest().apply {
+                update(applied, 0, applied.size)
+                doFinal(result, 0)
+            }
+            return result
         }
     }
 }
