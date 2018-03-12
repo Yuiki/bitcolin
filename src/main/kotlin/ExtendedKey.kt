@@ -7,7 +7,7 @@ class ExtendedKey(testnet: Boolean, seed: ByteArray) {
     private val depth: Int
     private val parentFingerprint: Int
     private val childNumber: Int
-    private val keyPriv: ByteArray
+    private val ecKey: ECKey
 
     private val verPub = if (testnet) TPUB else XPUB
     private val verPriv = if (testnet) TPRIV else XPRIV
@@ -30,10 +30,11 @@ class ExtendedKey(testnet: Boolean, seed: ByteArray) {
         depth = 0
         parentFingerprint = 0
         childNumber = 0
-        keyPriv = hashedLeft
+        ecKey = ECKey(hashedLeft)
     }
 
-    val privKey: String by lazy { serialize(true, keyPriv) }
+    val privKey: String = serialize(true, ecKey.privKey)
+    val pubKey: String = serialize(false, ecKey.pubKey)
 
     private fun serialize(isPriv: Boolean, key: ByteArray): String =
             ByteArrayOutputStream().apply {
