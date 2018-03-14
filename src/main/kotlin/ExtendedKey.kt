@@ -1,3 +1,4 @@
+import Hash.Companion.applyHmacSHA512
 import java.io.ByteArrayOutputStream
 import java.util.*
 
@@ -18,6 +19,12 @@ class ExtendedKey(hashedKey: ByteArray,
         val XPRIV = byteArrayOf(0x04, 0x88.toByte(), 0xAD.toByte(), 0xE4.toByte())
         val TPUB = byteArrayOf(0x04, 0x35, 0x87.toByte(), 0xCF.toByte())
         val TPRIV = byteArrayOf(0x04, 0x35, 0x83.toByte(), 0x94.toByte())
+
+        fun fromSeed(seed: ByteArray): ExtendedKey {
+            val hashKey = "Bitcoin seed"
+            val hashedSeed = applyHmacSHA512(seed, hashKey.toByteArray())
+            return ExtendedKey(hashedSeed)
+        }
 
         fun fromPath(root: ExtendedKey, path: String): ExtendedKey {
             path.split("/").let {
