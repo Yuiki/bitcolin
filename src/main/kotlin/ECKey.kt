@@ -31,7 +31,7 @@ class ECKey {
     }
 
     private fun initPubKey() {
-        pubKey = secp256K1.g.multiply(BigInteger(1, privKey)).getEncoded(false)
+        pubKey = secp256K1.g.multiply(BigInteger(1, privKey)).getEncoded(true)
         hashedPubKey = Hash.applyHash160(pubKey)
     }
 
