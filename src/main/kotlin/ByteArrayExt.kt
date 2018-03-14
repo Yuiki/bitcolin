@@ -1,13 +1,7 @@
 import java.math.BigInteger
 
 const val MAP_BASE58 = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
-val FIFTY_EIGHT: BigInteger by lazy { BigInteger.valueOf(58L) }
-
-fun ByteArray.toHex() = StringBuilder().apply {
-    for (i in this@toHex) {
-        append(String.format("%02X", i))
-    }
-}.toString()
+val FIFTY_EIGHT: BigInteger = BigInteger.valueOf(58L)
 
 fun ByteArray.toBase58Check(): String {
     val hashed = Hash.applySHA256(this, 2)
@@ -17,21 +11,18 @@ fun ByteArray.toBase58Check(): String {
     return extended.toBase58()
 }
 
-fun ByteArray.toBase58(): String {
-    var leadingZeroBytes = 0
-    while (leadingZeroBytes < this.size && this[leadingZeroBytes] == 0.toByte()) {
-        leadingZeroBytes++
-    }
+fun ByteArray.toBase58(): String =
+        StringBuilder().apply {
+            var input = BigInteger(this@toBase58)
+            while (input > BigInteger.ZERO) {
+                input.divideAndRemainder(FIFTY_EIGHT).also {
+                    this.append(MAP_BASE58[it[1].toInt()])
+                    input = it[0]
+                }
+            }
 
-    var input = BigInteger(this)
-    val output = StringBuilder()
-    while (input > BigInteger.ZERO) {
-        val results = input.divideAndRemainder(FIFTY_EIGHT)
-        output.append(MAP_BASE58[results[1].toInt()])
-        input = results[0]
-    }
-    for (i in leadingZeroBytes - 1 downTo 0) {
-        output.append(MAP_BASE58[0])
-    }
-    return output.reverse().toString()
-}
+            // check leading zero
+            (0 until this@toBase58.size)
+                    .takeWhile { this@toBase58[it] == 0.toByte() }
+                    .forEach { this.append(MAP_BASE58[0]) }
+        }.reverse().toString()

@@ -1,4 +1,4 @@
-import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class ByteArrayExtTest {
@@ -7,7 +7,7 @@ class ByteArrayExtTest {
         val input = "Bitcoin".toByteArray()
         val expected = "3WyEDWjcVB"
         val actual = input.toBase58()
-        Assertions.assertTrue(actual == expected)
+        assertTrue(actual == expected)
     }
 
     @Test
@@ -15,6 +15,6 @@ class ByteArrayExtTest {
         val input = "Bitcoin".toByteArray()
         val expected = "HUB1bxjWuH3izZw"
         val actual = input.toBase58Check()
-        Assertions.assertTrue(actual == expected)
+        assertTrue(actual == expected)
     }
 }
