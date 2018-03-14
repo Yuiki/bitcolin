@@ -1,27 +1,28 @@
-import Hash.Companion.applyHmacSHA512
-import Hash.Companion.applySHA256
-import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class ExtendedKeyTest {
     @Test
     fun testExtendedKey() {
-        val passPhrase = "check this one *&##X87 check this 2 this passphrase 593 is tough to crack&@!!"
-        val round = 50000
-        val hashedPassPhrase = applySHA256(passPhrase.toByteArray(), round)
-        val hashKey = "Bitcoin seed".toByteArray()
-        val hashedKey = applyHmacSHA512(hashedPassPhrase, hashKey)
-        val key = ExtendedKey(false, hashedKey)
-        val chainCode = key.chainCode
-        Assertions.assertTrue(chainCode.toHex().toLowerCase() == "a24a2cae513d6c70c4076d685c56945b565810ee70bdb96198a2b60b83e1e7ba".toLowerCase())
-        val privKey = key.privKey
-        Assertions.assertTrue(privKey == "xprv9s21ZrQH143K3g56LSYgKiKx4LD4GJh27DUXRqShDpn2cAD4EAPbVn5T9BqqcGswHzcrztzJEJMHpS7wstai53cS6esPPkRGjp4voMhXrTP")
-        val pubKey = key.pubKey
-        Assertions.assertTrue(pubKey == "HarqLWPftSVzTwufETzTJ6jCT7jXuUxVDzzNg2t9qiUHME3687vYBVTyTLAFjH4exdNYCbFtGnzvgWHnCJSFA2jkCa7zj8hCnJSZv9yukLsmHGzFFXtYUYoXZGHS5SA8DDq6QS4D3gzi3UoDYMi7J4E2q9h")
+        val seed = byteArrayOf(0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f)
+        val key = ExtendedKey.fromSeed(seed)
 
-        val path = "m/0/0/3"
-        val childKey = ExtendedKey.fromPath(key, path)
-        val childPrivKey = childKey.privKey
-        Assertions.assertTrue(childPrivKey == "xprv9yRjeYDqF5X9XjLDomcEfK9QPZ3JGLcdaR6jaAeFnJ4a9Nem3aH4EzuZhh54pfg2XXGTYL6oCoHLHtnZa6Quqe5D1TLnhgYgbeoY6EfgeWN")
+        val actualPrivKey = key.privKey
+        val expectedPrivKey = "xprv9s21ZrQH143K3QTDL4LXw2F7HEK3wJUD2nW2nRk4stbPy6cq3jPPqjiChkVvvNKmPGJxWUtg6LnF5kejMRNNU3TGtRBeJgk33yuGBxrMPHi"
+        assertTrue(actualPrivKey == expectedPrivKey)
+
+        val actualPubKey = key.pubKey
+        val expectedPubKey = "xpub661MyMwAqRbcFtXgS5sYJABqqG9YLmC4Q1Rdap9gSE8NqtwybGhePY2gZ29ESFjqJoCu1Rupje8YtGqsefD265TMg7usUDFdp6W1EGMcet8"
+        assertTrue(actualPubKey == expectedPubKey)
+
+        val childKey = ExtendedKey.fromPath(key, path = "m/2147483648")
+
+        val actualChildPrivKey = childKey.privKey
+        val expectedChildPrivKey = "xprv9uHRZZhk6KAJC1avXpDAp4MDc3sQKNxDiPvvkX8Br5ngLNv1TxvUxt4cV1rGL5hj6KCesnDYUhd7oWgT11eZG7XnxHrnYeSvkzY7d2bhkJ7"
+        assertTrue(actualChildPrivKey == expectedChildPrivKey)
+
+        val actualChildPubKey = childKey.pubKey
+        val expectedChildPubKey = "xpub68Gmy5EdvgibQVfPdqkBBCHxA5htiqg55crXYuXoQRKfDBFA1WEjWgP6LHhwBZeNK1VTsfTFUHCdrfp1bgwQ9xv5ski8PX9rL2dZXvgGDnw"
+        assertTrue(actualChildPubKey == expectedChildPubKey)
     }
 }
