@@ -15,11 +15,10 @@ class Hash {
             Security.addProvider(BouncyCastleProvider())
         }
 
-        fun applyHmacSHA512(data: ByteArray, key: ByteArray): ByteArray {
-            val keySpec = SecretKeySpec(key, HMAC_SHA512)
-            val mac = Mac.getInstance(HMAC_SHA512, PROVIDER).apply { init(keySpec) }
-            return mac.doFinal(data)
-        }
+        fun applyHmacSHA512(data: ByteArray, key: ByteArray): ByteArray =
+                Mac.getInstance(HMAC_SHA512, PROVIDER)
+                        .apply { init(SecretKeySpec(key, HMAC_SHA512)) }
+                        .doFinal(data)
 
         fun applySHA256(data: ByteArray, round: Int = 1): ByteArray {
             val md = MessageDigest.getInstance(SHA256)
