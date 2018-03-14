@@ -6,27 +6,25 @@ class ExtendedKey(hashedKey: ByteArray,
                   private val isTestNet: Boolean = false,
                   private val childNumber: Int = 0,
                   private val depth: Int = 0,
-                  parentECKey: ECKey? = null,
-                  private val parentFingerprint: Int = 0) {
-    val chainCode: ByteArray
+                  parentECKey: ECKey? = null) {
+    private val chainCode: ByteArray
     private val ecKey: ECKey
+    private val parentFingerprint: Int
 
     private val verPub = if (isTestNet) TPUB else XPUB
     private val verPriv = if (isTestNet) TPRIV else XPRIV
 
     companion object {
-        val XPUB = byteArrayOf(0x04, 0x88.toByte(), 0xB2.toByte(), 0x1E)
-        val XPRIV = byteArrayOf(0x04, 0x88.toByte(), 0xAD.toByte(), 0xE4.toByte())
-        val TPUB = byteArrayOf(0x04, 0x35, 0x87.toByte(), 0xCF.toByte())
-        val TPRIV = byteArrayOf(0x04, 0x35, 0x83.toByte(), 0x94.toByte())
+        private val XPUB = byteArrayOf(0x04, 0x88.toByte(), 0xB2.toByte(), 0x1E)
+        private val XPRIV = byteArrayOf(0x04, 0x88.toByte(), 0xAD.toByte(), 0xE4.toByte())
+        private val TPUB = byteArrayOf(0x04, 0x35, 0x87.toByte(), 0xCF.toByte())
+        private val TPRIV = byteArrayOf(0x04, 0x35, 0x83.toByte(), 0x94.toByte())
 
-        fun fromSeed(seed: ByteArray): ExtendedKey {
-            val hashKey = "Bitcoin seed"
-            val hashedSeed = applyHmacSHA512(seed, hashKey.toByteArray())
-            return ExtendedKey(hashedSeed)
-        }
+        private val KEY_HASH = "Bitcoin seed".toByteArray()
 
-        fun fromPath(root: ExtendedKey, path: String): ExtendedKey {
+        fun fromSeed(seed: ByteArray) = ExtendedKey(hashedKey = applyHmacSHA512(seed, KEY_HASH))
+
+        fun fromRootByPath(root: ExtendedKey, path: String): ExtendedKey {
             path.split("/").let {
                 if (it.size != 4) throw IllegalArgumentException("Invalid derivation path")
                 val account = it[1].toInt()
@@ -42,13 +40,19 @@ class ExtendedKey(hashedKey: ByteArray,
         val hashedKeyLeft = Arrays.copyOfRange(hashedKey, 0, 32)
         val hashedKeyRight = Arrays.copyOfRange(hashedKey, 32, 64)
         chainCode = hashedKeyRight
-        ecKey = if (parentECKey != null) ECKey(hashedKeyLeft, parentECKey) else ECKey(hashedKeyLeft)
+        if (parentECKey != null) {
+            ecKey = ECKey(hashedKeyLeft, parentECKey)
+            parentFingerprint = parentECKey.fingerprint
+        } else {
+            ecKey = ECKey(hashedKeyLeft)
+            parentFingerprint = 0
+        }
     }
 
-    val privKey: String = serialize(true, ecKey.privKey)
-    val pubKey: String = serialize(false, ecKey.pubKey)
+    val privKey: String = serialize(true)
+    val pubKey: String = serialize(false)
 
-    private fun serialize(isPriv: Boolean, key: ByteArray): String =
+    private fun serialize(isPriv: Boolean): String =
             ByteArrayOutputStream().apply {
                 write(if (isPriv) verPriv else verPub)
                 write(depth and 0xFF)
@@ -62,7 +66,7 @@ class ExtendedKey(hashedKey: ByteArray,
                 write(childNumber and 0xFF)
                 write(chainCode)
                 if (isPriv) write(0x00)
-                write(key)
+                write(if (isPriv) ecKey.privKey else ecKey.pubKey)
             }.toByteArray().toBase58Check()
 
     private fun derive(index: Int): ExtendedKey {
@@ -74,6 +78,6 @@ class ExtendedKey(hashedKey: ByteArray,
         childKey[parentPubKey.size + 2] = (index ushr 8 and 0xFF).toByte()
         childKey[parentPubKey.size + 3] = (index and 0xFF).toByte()
         val hashedChildKey = Hash.applyHmacSHA512(childKey, chainCode)
-        return ExtendedKey(hashedChildKey, isTestNet, index, depth + 1, ecKey, ecKey.fingerprint)
+        return ExtendedKey(hashedChildKey, isTestNet, index, depth + 1, ecKey)
     }
 }

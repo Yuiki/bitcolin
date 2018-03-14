@@ -15,7 +15,7 @@ class ExtendedKeyTest {
         val expectedPubKey = "xpub661MyMwAqRbcFtXgS5sYJABqqG9YLmC4Q1Rdap9gSE8NqtwybGhePY2gZ29ESFjqJoCu1Rupje8YtGqsefD265TMg7usUDFdp6W1EGMcet8"
         assertTrue(actualPubKey == expectedPubKey)
 
-        val childKey = ExtendedKey.fromPath(key, path = "m/2147483648")
+        val childKey = ExtendedKey.fromRootByPath(key, path = "m/2147483648")
 
         val actualChildPrivKey = childKey.privKey
         val expectedChildPrivKey = "xprv9uHRZZhk6KAJC1avXpDAp4MDc3sQKNxDiPvvkX8Br5ngLNv1TxvUxt4cV1rGL5hj6KCesnDYUhd7oWgT11eZG7XnxHrnYeSvkzY7d2bhkJ7"
