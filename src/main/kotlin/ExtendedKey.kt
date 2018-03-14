@@ -1,8 +1,8 @@
 import java.io.ByteArrayOutputStream
 import java.util.*
 
-class ExtendedKey(private val isTestNet: Boolean,
-                  hashedKey: ByteArray,
+class ExtendedKey(hashedKey: ByteArray,
+                  private val isTestNet: Boolean = false,
                   private val childNumber: Int = 0,
                   private val depth: Int = 0,
                   parentECKey: ECKey? = null,
@@ -67,6 +67,6 @@ class ExtendedKey(private val isTestNet: Boolean,
         childKey[parentPubKey.size + 2] = (index ushr 8 and 0xFF).toByte()
         childKey[parentPubKey.size + 3] = (index and 0xFF).toByte()
         val hashedChildKey = Hash.applyHmacSHA512(childKey, chainCode)
-        return ExtendedKey(isTestNet, hashedChildKey, index, depth + 1, ecKey, ecKey.fingerprint)
+        return ExtendedKey(hashedChildKey, isTestNet, index, depth + 1, ecKey, ecKey.fingerprint)
     }
 }
