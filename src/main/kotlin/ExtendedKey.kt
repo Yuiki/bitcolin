@@ -25,14 +25,14 @@ class ExtendedKey(hashedKey: ByteArray,
         fun fromSeed(seed: ByteArray) = ExtendedKey(hashedKey = applyHmacSHA512(seed, KEY_HASH))
 
         fun fromRootByPath(root: ExtendedKey, path: String): ExtendedKey {
-            path.split("/").let {
-                if (it.size != 4) throw IllegalArgumentException("Invalid derivation path")
-                val account = it[1].toInt()
-                val change = it[2].toInt()
-                val index = it[3].toInt()
+            return path.split("/")
+                    .drop(1)
+                    .fold(root, { prev, nextStr ->
+                        val hardened = nextStr.endsWith("'")
 
-                return root.derive(account).derive(change).derive(index)
-            }
+                        val next = if (hardened) (nextStr.substring(0, nextStr.length - 1)).toInt() or 0x80000000.toInt() else nextStr.toInt()
+                        return@fold prev.derive(next)
+                    })
         }
     }
 
@@ -65,14 +65,21 @@ class ExtendedKey(hashedKey: ByteArray,
                 write(childNumber ushr 8 and 0xFF)
                 write(childNumber and 0xFF)
                 write(chainCode)
-                if (isPriv) write(0x00)
+                if (isPriv && ecKey.privKey.size == 32) write(0x00)
                 write(if (isPriv) ecKey.privKey else ecKey.pubKey)
             }.toByteArray().toBase58Check()
 
     private fun derive(index: Int): ExtendedKey {
         val parentPubKey = ecKey.pubKey
         val childKey = ByteArray(parentPubKey.size + 4)
-        System.arraycopy(parentPubKey, 0, childKey, 0, parentPubKey.size)
+
+        val hardened = (index and 0x80000000.toInt()) != 0
+        if (hardened) {
+            val parentPrivKey = ecKey.privKey
+            System.arraycopy(parentPrivKey, 0, childKey, 33 - parentPrivKey.size, parentPrivKey.size)
+        } else {
+            System.arraycopy(parentPubKey, 0, childKey, 0, parentPubKey.size)
+        }
         childKey[parentPubKey.size] = (index ushr 24 and 0xFF).toByte()
         childKey[parentPubKey.size + 1] = (index ushr 16 and 0xFF).toByte()
         childKey[parentPubKey.size + 2] = (index ushr 8 and 0xFF).toByte()
