@@ -87,4 +87,6 @@ class ExtendedKey(hashedKey: ByteArray,
         val hashedChildKey = Hash.applyHmacSHA512(childKey, chainCode)
         return ExtendedKey(hashedChildKey, isTestNet, index, depth + 1, ecKey)
     }
+
+    fun toAddress() = ecKey.toAddress(isTestNet)
 }

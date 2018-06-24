@@ -26,4 +26,6 @@ class ECKey(key: ByteArray, ecKey: ECKey? = null) {
         }
         fingerprint
     }
+
+    fun toAddress(isTestNet: Boolean) = Address(hashedPubKey, isTestNet)
 }
