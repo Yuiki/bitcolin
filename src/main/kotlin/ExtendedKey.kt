@@ -76,7 +76,7 @@ class ExtendedKey(hashedKey: ByteArray,
         val hardened = (index and 0x80000000.toInt()) != 0
         if (hardened) {
             val parentPrivKey = ecKey.privKey
-            System.arraycopy(parentPrivKey, 0, childKey, 1, parentPrivKey.size)
+            System.arraycopy(parentPrivKey, 0, childKey, 33 - parentPrivKey.size, parentPrivKey.size)
         } else {
             System.arraycopy(parentPubKey, 0, childKey, 0, parentPubKey.size)
         }
