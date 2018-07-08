@@ -1,4 +1,6 @@
 import java.io.OutputStream
+import java.math.BigInteger
+import java.nio.charset.Charset
 
 fun Int.writeToAsLE(target: OutputStream, bytes: Int = 4) {
     val out = ByteArray(size = bytes)
@@ -34,3 +36,33 @@ fun Long.writeToAsLE(out: ByteArray, offset: Int = 0): ByteArray {
     }
     return out
 }
+
+fun readInt(from: ByteArray, offset: Int = 0, bytes: Int = 4) =
+        (0..(bytes - 1) * 8 step 8).foldIndexed(0) { idx: Int, acc: Int, i: Int ->
+            acc or (from[offset + idx].toInt() shl i)
+        }
+
+fun readLong(from: ByteArray, offset: Int = 0) =
+        BigInteger(reverse(readBytes(from, offset = offset, length = 8))).longValueExact()
+
+fun readBytes(from: ByteArray, offset: Int = 0, length: Int) =
+        ByteArray(length).apply {
+            System.arraycopy(from, offset, this, 0, length)
+        }
+
+fun readVarInt(from: ByteArray, offset: Int = 0): VarInt {
+    return VarInt.of(from, offset = offset)
+}
+
+fun readString(from: ByteArray, offset: Int = 0): Pair<Int, String> {
+    val varInt = readVarInt(from, offset = offset)
+    val len = varInt.value.toInt()
+    return Pair(varInt.size + len, String(readBytes(from, offset = offset + varInt.size, length = len), Charset.forName("UTF-8")))
+}
+
+fun reverse(source: ByteArray) =
+        ByteArray(source.size).apply {
+            for (i in 0 until source.size) {
+                this[i] = source[source.size - 1 - i]
+            }
+        }

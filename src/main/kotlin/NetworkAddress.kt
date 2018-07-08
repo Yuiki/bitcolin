@@ -5,7 +5,7 @@ class NetworkAddress(
         val services: Long,
         val ip: InetAddress,
         val port: Int
-) : ChildMessage(length = 30) {
+) : ChildMessage(length = 26) {
     override fun writeTo(target: OutputStream) {
         services.writeToAsLE(target)
 
@@ -23,5 +23,14 @@ class NetworkAddress(
         target.write(ipAddr)
 
         port.writeToAsLE(target, bytes = 2)
+    }
+
+    companion object {
+        fun parse(payload: ByteArray, offset: Int = 0): NetworkAddress {
+            val services = readLong(payload, offset = offset)
+            val ip = InetAddress.getByAddress(readBytes(payload, offset = offset + 8, length = 16))
+            val port = readInt(payload, offset = offset + 24, bytes = 2)
+            return NetworkAddress(services, ip, port)
+        }
     }
 }

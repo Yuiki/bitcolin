@@ -26,4 +26,17 @@ class VarInt(val value: Long) {
                     value.writeToAsLE(this, offset = 1)
                 }
             }
+
+    companion object {
+        fun of(from: ByteArray, offset: Int = 0): VarInt {
+            val first = 0xFF and from[offset].toInt()
+            val value = when {
+                first < 0xFD -> first
+                first == 0xFD -> readInt(from, offset = offset + 1, bytes = 2)
+                first == 0xFE -> readInt(from, offset = offset + 1)
+                else -> readLong(from, offset + 1).toInt()
+            }
+            return VarInt(value)
+        }
+    }
 }
