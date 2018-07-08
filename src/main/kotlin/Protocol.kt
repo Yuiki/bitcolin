@@ -19,24 +19,24 @@ class Protocol {
     private fun handshake(channel: SocketChannel) {
         // send version
         val version = VersionMessage(startHeight = 0)
-        sendMessage(message = version, channel = channel)
-        println("sent version")
-
-        // recv version
-        receiveMessage(channel).also {
-            println("recv " + it.command)
+        sendMessage(message = version, channel = channel).apply {
+            println("sent version")
         }
 
-        // send verack
-        sendMessage(message = VerAckMessage(), channel = channel)
-        println("sent verack")
-
-        while (true) {
+        messageLoop@ while (true) {
             val message = receiveMessage(channel).also {
-                println(it.command)
+                println("recv " + it.command)
             }
             // recv verack
-            if (message.command == "verack") return
+            when (message.command) {
+                "version" -> sendMessage(message = VerAckMessage(), channel = channel).also {
+                    println("sent verack")
+                }
+                "verack" -> break@messageLoop
+                "ping" -> sendMessage(message = PongMessage((message as PingMessage).nonce), channel = channel).also {
+                    println("sent pong")
+                }
+            }
         }
     }
 
@@ -79,9 +79,6 @@ class Protocol {
             System.arraycopy(header, 16, this, 0, 4)
         }
 
-        println(length)
-        println(readBuff.remaining())
-
         val payload = ByteArray(length).apply {
             readBuff.get(this, 0, length)
         }
@@ -95,6 +92,7 @@ class Protocol {
         return when (command) {
             "version" -> VersionMessage.parse(payload)
             "verack" -> VerAckMessage()
+            "ping" -> PingMessage.parse(payload)
             else -> UnknownMessage
         }
     }
