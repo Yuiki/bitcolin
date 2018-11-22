@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/bitcotlin.iml" filepath="$PROJECT_DIR$/.idea/modules/bitcotlin.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/bitcotlin_main.iml" filepath="$PROJECT_DIR$/.idea/modules/bitcotlin_main.iml" group="bitcotlin" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/bitcotlin_test.iml" filepath="$PROJECT_DIR$/.idea/modules/bitcotlin_test.iml" group="bitcotlin" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/bitkotlin.iml" filepath="$PROJECT_DIR$/.idea/modules/bitkotlin.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/bitkotlin_main.iml" filepath="$PROJECT_DIR$/.idea/modules/bitkotlin_main.iml" group="bitkotlin" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/bitkotlin_test.iml" filepath="$PROJECT_DIR$/.idea/modules/bitkotlin_test.iml" group="bitkotlin" />
     </modules>
   </component>
 </project>

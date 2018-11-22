@@ -4,6 +4,8 @@
     <bytecodeTargetLevel>
       <module name="bitcotlin_main" target="1.8" />
       <module name="bitcotlin_test" target="1.8" />
+      <module name="bitkotlin_main" target="1.10" />
+      <module name="bitkotlin_test" target="1.10" />
     </bytecodeTargetLevel>
   </component>
 </project>
