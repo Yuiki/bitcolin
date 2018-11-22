@@ -1,11 +1,10 @@
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import javax.xml.bind.DatatypeConverter
 
 class ExtendedKeyTest {
     @Test
     fun testExtendedKey1() {
-        val seed = DatatypeConverter.parseHexBinary("000102030405060708090a0b0c0d0e0f")
+        val seed = "000102030405060708090a0b0c0d0e0f".toByteArrayFromHex()
         val key = ExtendedKey.fromSeed(seed)
         val childKey = ExtendedKey.fromRootByPath(key, path = "m/0'/1/2'/2/1000000000")
 
@@ -20,7 +19,7 @@ class ExtendedKeyTest {
 
     @Test
     fun testExtendedKey2() {
-        val seed = DatatypeConverter.parseHexBinary("fffcf9f6f3f0edeae7e4e1dedbd8d5d2cfccc9c6c3c0bdbab7b4b1aeaba8a5a29f9c999693908d8a8784817e7b7875726f6c696663605d5a5754514e4b484542")
+        val seed = "fffcf9f6f3f0edeae7e4e1dedbd8d5d2cfccc9c6c3c0bdbab7b4b1aeaba8a5a29f9c999693908d8a8784817e7b7875726f6c696663605d5a5754514e4b484542".toByteArrayFromHex()
         val key = ExtendedKey.fromSeed(seed)
         val childKey = ExtendedKey.fromRootByPath(key, path = "m/0/2147483647'/1/2147483646'/2")
 
@@ -35,7 +34,7 @@ class ExtendedKeyTest {
 
     @Test
     fun testExtendedKey3() {
-        val seed = DatatypeConverter.parseHexBinary("4b381541583be4423346c643850da4b320e46a87ae3d2a4e6da11eba819cd4acba45d239319ac14f863b8d5ab5a0d0c64d2e8a1e7d1457df2e5a3c51c73235be")
+        val seed = "4b381541583be4423346c643850da4b320e46a87ae3d2a4e6da11eba819cd4acba45d239319ac14f863b8d5ab5a0d0c64d2e8a1e7d1457df2e5a3c51c73235be".toByteArrayFromHex()
         val key = ExtendedKey.fromSeed(seed)
         val childKey = ExtendedKey.fromRootByPath(key, path = "m/0'")
 
